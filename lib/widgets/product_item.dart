@@ -23,6 +23,7 @@ class ProductItem extends StatelessWidget {
             trailing: IconButton(
               onPressed: () {
                 cart.addItem(product.id, product.price, product.title);
+                // Scaffold.of(context).showSnackBar()
               },
               icon: const Icon(
                 Icons.shopping_cart,
