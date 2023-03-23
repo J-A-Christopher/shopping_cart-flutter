@@ -10,15 +10,33 @@ class OrdersScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final orderData = Provider.of<Orders>(context);
+    // final orderData = Provider.of<Orders>(context);
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Your Orders'),
-      ),
-      drawer: const AppDrawer(),
-      body: ListView.builder(
-          itemBuilder: (ctx, i) => OrderItem(orderData.orders[i]),
-          itemCount: orderData.orders.length),
-    );
+        appBar: AppBar(
+          title: const Text('Your Orders'),
+        ),
+        drawer: const AppDrawer(),
+        body: FutureBuilder(
+            future:
+                Provider.of<Orders>(context, listen: false).fetchAndSetOrders(),
+            builder: (cotext, dataSnapshot) {
+              if (dataSnapshot.connectionState == ConnectionState.waiting) {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              } else {
+                if (dataSnapshot.error != null) {
+                  return const Center(
+                    child: Text('An error Occured'),
+                  );
+                } else {
+                  return Consumer<Orders>(
+                      builder: (context, orderData, child) => ListView.builder(
+                          itemBuilder: (ctx, i) =>
+                              OrderItem(orderData.orders[i]),
+                          itemCount: orderData.orders.length));
+                }
+              }
+            }));
   }
 }
