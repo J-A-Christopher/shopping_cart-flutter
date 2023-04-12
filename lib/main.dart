@@ -22,35 +22,47 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
-      providers: [
-        ChangeNotifierProvider.value(
-          value: Products(),
-        ),
-        ChangeNotifierProvider(
-          create: (ctx) => Cart(),
-        ),
-        ChangeNotifierProvider(
-          create: (ctx) => Orders(),
-        ),
-        ChangeNotifierProvider(create: (ctx) => Auth())
-      ],
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'My App',
-        theme: ThemeData(
-            colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.purple)
-                .copyWith(secondary: Colors.deepOrange),
-            fontFamily: 'Lato'),
-        home: AuthScreen(),
-        routes: {
-          ProductDetailScreen.routeName: (context) =>
-              const ProductDetailScreen(),
-          CartScreen.routeName: (context) => const CartScreen(),
-          OrdersScreen.routeName: (context) => const OrdersScreen(),
-          UserProductsScreen.routeName: (context) => const UserProductsScreen(),
-          EditProductScreen.routeName: (context) => const EditProductScreen()
-        },
-      ),
-    );
+        providers: [
+          ChangeNotifierProvider(create: (ctx) => Auth()),
+          ChangeNotifierProxyProvider<Auth, Products>(
+            create: (_) => Products('', '', []),
+            update: (context, auth, previousProducts) => Products(
+                auth.token!,
+                auth.userID,
+                previousProducts == null ? [] : previousProducts.items),
+          ),
+          ChangeNotifierProvider(
+            create: (ctx) => Cart(),
+          ),
+          ChangeNotifierProxyProvider<Auth, Orders>(
+            create: (ctx) => Orders('', []),
+            update: (_, auth, previousOrder) => Orders(
+                auth.token!, previousOrder == null ? [] : previousOrder.orders),
+          ),
+        ],
+        child: Consumer<Auth>(
+          builder: (context, auth, _) => MaterialApp(
+            debugShowCheckedModeBanner: false,
+            title: 'My App',
+            theme: ThemeData(
+                colorScheme:
+                    ColorScheme.fromSwatch(primarySwatch: Colors.purple)
+                        .copyWith(secondary: Colors.deepOrange),
+                fontFamily: 'Lato'),
+            home: auth.isAuth
+                ? const ProdutsOverviewScreen()
+                : const AuthScreen(),
+            routes: {
+              ProductDetailScreen.routeName: (context) =>
+                  const ProductDetailScreen(),
+              CartScreen.routeName: (context) => const CartScreen(),
+              OrdersScreen.routeName: (context) => const OrdersScreen(),
+              UserProductsScreen.routeName: (context) =>
+                  const UserProductsScreen(),
+              EditProductScreen.routeName: (context) =>
+                  const EditProductScreen()
+            },
+          ),
+        ));
   }
 }
