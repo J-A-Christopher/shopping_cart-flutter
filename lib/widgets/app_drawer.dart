@@ -3,6 +3,7 @@ import '../screens/orders_screen.dart';
 import '../screens/user_products_screen.dart';
 import '../providers/auth.dart';
 import 'package:provider/provider.dart';
+import '../helpers/custom_route.dart';
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
@@ -45,7 +46,12 @@ class AppDrawer extends StatelessWidget {
               title: const Text('Logout'),
               onTap: () {
                 Navigator.of(context).pop();
-                Navigator.pushReplacementNamed(context, '/');
+                //Navigator.pushReplacementNamed(context, '/');
+                Navigator.pushNamed(
+                    context,
+                    CustomRoute(
+                        builder: (context) => const OrdersScreen(),
+                        settings: const RouteSettings()) as String);
                 // Navigator.of(context)
                 //     .pushReplacementNamed(UserProductsScreen.routeName);
 
